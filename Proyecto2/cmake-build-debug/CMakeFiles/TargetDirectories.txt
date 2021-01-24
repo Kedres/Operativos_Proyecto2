@@ -1,0 +1,3 @@
+/home/kevin/U/sistemas/proyecto2/Operativos_Proyecto2/Proyecto2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/kevin/U/sistemas/proyecto2/Operativos_Proyecto2/Proyecto2/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/kevin/U/sistemas/proyecto2/Operativos_Proyecto2/Proyecto2/cmake-build-debug/CMakeFiles/Proyecto2.dir
