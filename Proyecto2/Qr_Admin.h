@@ -28,5 +28,7 @@ static unsigned int fg_color[4] = {0, 0, 0, 255};
 static unsigned int bg_color[4] = {255, 255, 255, 255};
 
 int createQR(char* filename, const char* msg);
+int lectura(char* file);
+char* leerQR(char* filename);
 
 #endif //PROYECTO2_QR_ADMIN_H

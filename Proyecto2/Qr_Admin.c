@@ -4,7 +4,71 @@
 
 #include "Qr_Admin.h"
 
+int qrID = 0;
+char resultado[128];
+
 static int writePNG(QRcode *qrcode, const char *outfile);
+
+char* leerQR(char* filename)
+{
+    memset(resultado, 0, sizeof resultado);
+    FILE* fp;
+    char path[128];
+    char command[50] = "zbarimg ";
+    strcat(command, filename);
+    strcat(command, " -q");
+
+    fp = popen(command, "r");
+    if (fp == NULL) {
+        printf("Failed to run command\n" );
+        return "-1";
+    }
+
+    while (fgets(path, sizeof(path), fp) != NULL) {
+        strcat(resultado, path);
+    }
+
+    pclose(fp);
+    return resultado;
+}
+
+int lectura(char* file)
+{
+    FILE *archivo;
+    char caracter = 0;
+
+    archivo = fopen(file,"r");
+
+    if (archivo == NULL)
+    {
+        printf("\nError de apertura del archivo. \n\n");
+        return -1;
+    }
+    else
+    {
+        do {
+            char datos[128];
+            int i = 0;
+            if (caracter != 0)
+            {
+                datos[i] = caracter;
+                i++;
+            }
+
+            while ((caracter = fgetc(archivo)) != EOF && i < 127) {
+                datos[i] = caracter;
+                i++;
+            }
+            char name[4];
+            sprintf(name, "%d", qrID);
+            qrID++;
+            createQR(name, datos);
+            memset(datos, 0, sizeof datos);
+        }while (caracter != EOF);
+    }
+    fclose(archivo);
+    return 0;
+}
 
 int createQR(char* filename, const char* msg)
 {
