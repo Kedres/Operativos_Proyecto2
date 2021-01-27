@@ -1,6 +1,7 @@
 #include "pilaQR.h"
 #include <string.h>
-#include <stdlib.h>
+
+void rellenarPila(struct pilaQR* pila, int cantRegistros);
 
 struct nodoQR* crearNodoQR(char* nombreQR){
     struct nodoQR* nodoTemp = (struct nodoQR*) malloc(sizeof(struct nodoQR));
@@ -10,38 +11,64 @@ struct nodoQR* crearNodoQR(char* nombreQR){
     return nodoTemp;
 }
 
-struct pilaQR* crearPila(){
+struct pilaQR* crearPila(int cantRegistros){
     struct pilaQR* pilaTempQR = (struct pilaQR*) malloc(sizeof(struct pilaQR));
     pilaTempQR->cabeza = pilaTempQR->actual = NULL;
-    tamanioPila = 0;
+    rellenarPila(pilaTempQR, cantRegistros);
+    tamanioPila = cantRegistros;
     return pilaTempQR;
+}
+
+void rellenarPila(struct pilaQR* pila, int cantRegistros)
+{
+    for (int i = 0; i < cantRegistros; ++i)
+    {
+        char* name = (char*) malloc(5*sizeof(char));;
+        sprintf(name, "%d", i);
+        struct nodoQR* temp = crearNodoQR(name);
+        if(pila->cabeza == NULL)
+        {
+            pila->cabeza = temp;
+            pila->actual = temp;
+        } else{
+            pila->actual->sig = temp;
+            pila->actual = temp;
+        }
+    }
 }
 
 void pushQR(struct pilaQR* pila, char* nombreQR){
     struct nodoQR* nodoTemp = crearNodoQR(nombreQR);
 
     if(pila->actual == NULL){
-        pila->cabeza = pila->actual = nodoTemp;
+        pila->cabeza = nodoTemp;
         tamanioPila = 1;
         return;
     }
 
-    pila->actual->sig = nodoTemp;
-    pila->actual = nodoTemp;
+    nodoTemp->sig = pila->cabeza;
+    pila->cabeza = nodoTemp;
     tamanioPila = tamanioPila + 1;
 }
-void popQR(struct pilaQR* pila){
+char* popQR(struct pilaQR* pila){
     if(pila->cabeza == NULL){
-        return;
+        return 0;
     }
     struct  nodoQR* temp = pila->cabeza;
 
     pila->cabeza = pila->cabeza->sig;
-
-    if(pila->cabeza == NULL){
-        pila->actual = NULL;
-    }
-
+    char* qrLibre = temp->nombreQR;
     free(temp);
     tamanioPila = tamanioPila - 1;
+    return  qrLibre;
+}
+
+void verificarPila(struct pilaQR* pila)
+{
+    struct nodoQR* actual = pila->cabeza;
+    while (actual != NULL)
+    {
+        printf("%s \n", actual->nombreQR);
+        actual = actual->sig;
+    }
 }

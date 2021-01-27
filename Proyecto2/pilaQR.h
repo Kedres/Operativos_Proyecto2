@@ -16,8 +16,9 @@ struct pilaQR{
 int tamanioPila;
 
 struct nodoQR* crearNodoQR(char* nombreQR);
-struct pilaQR* crearPila();
+struct pilaQR* crearPila(int cantRegistros);
 void pushQR(struct pilaQR* pila, char* nombreQR);
-void popQR(struct pilaQR* pila);
+char* popQR(struct pilaQR* pila);
+void verificarPila(struct pilaQR* pila);
 
 #endif //PROYECTO2_PILAQR_H
