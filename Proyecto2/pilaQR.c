@@ -76,12 +76,10 @@ struct pilaQR* restaurarPila(struct pilaQR* pila, char* qr)
         pilaTempQR->cabeza = pilaTempQR->actual = NULL;
         pilaTempQR->cabeza = temp;
         pilaTempQR->actual = temp;
-        printf("temine 1\n");
         return  pilaTempQR;
     } else {
         pila->actual->sig = temp;
         pila->actual = temp;
-        //printf("termine2");
         return pila;
     }
 }

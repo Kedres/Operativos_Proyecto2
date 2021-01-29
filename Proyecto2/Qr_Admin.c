@@ -11,6 +11,7 @@ char resultado[128];
 int restablecido = 0;
 
 static int writePNG(QRcode *qrcode, const char *outfile);
+char* cambiarDireccion(char* token);
 
 char* leerQR(char* filename)
 {
@@ -216,43 +217,33 @@ void crearSuperBloque(int cantRegistros)
 
 void guardarPila()
 {
-    //printf("\nCAbeza %s\n", pila->cabeza->nombreQR);
-    //popQR(pila);
-    verificarPila(pila);
     char datosGuardar[128];
     char* qr = ".QRP";
     char registroPila[10];
     int registro = 0;
 
     char* actual = popQR(pila);
-    //sprintf(datosGuardar, "%d", getTam());
-    //strcat(datosGuardar, ",");
 
     do {
         int datosAct = 0;
         if (actual != 0) {
-            strcpy(datosGuardar, actual);
-            strcat(datosGuardar, ",");
+            strcpy(datosGuardar, ",");
+            strcat(datosGuardar, actual);
             datosAct = datosAct + strlen(actual) + 1;
         }
 
         while (actual != 0 && datosAct < 128) {
-            //printf("llegue\n");
-            //printf("%s\n", actual);
-            if(restablecido == 0) {
-                free(actual);
-            }
-            //printf("llegue2\n");
+            free(actual);
             actual = popQR(pila);
             if (actual != 0) {
                 datosAct = datosAct + strlen(actual) + 1;
                 if (datosAct < 128) {
-                    strcat(datosGuardar, actual);
                     strcat(datosGuardar, ",");
+                    strcat(datosGuardar, actual);
                 }
             }
         }
-        //printf("%s\n", datosGuardar);
+        strcat(datosGuardar, ",");
 
         sprintf(registroPila, "%d", registro);
         strcat(registroPila, qr);
@@ -260,55 +251,57 @@ void guardarPila()
         memset(registroPila, 0, sizeof registroPila);
         memset(datosGuardar, 0, sizeof datosGuardar);
         registro++;
-        //printf("%s\n", datosGuardar);
     }while (actual != 0);
     free(pila);
 }
 
 void reestablecerPila(int cant)
 {
+    char datosLeidos[128*cant*2];
     char qrName[10];
     restablecido = 1;
     char* token;
 
-    //pila = NULL;
-    //pila = (struct pilaQR*) malloc(sizeof(struct pilaQR));
-    //pila->cabeza = pila->actual = NULL;
-    for(int i = 0; i < cant; ++i){
-        //printf("el i es: %i\n", i);
+    for(int i = 0; i < cant; ++i) {
+        memset(qrName, 0, sizeof qrName);
         sprintf(qrName, "%d", i);
         strcat(qrName, ".QRP");
-        char* datos = (char*) malloc(5*sizeof(char));
+        char *datos = (char *) malloc(5 * sizeof(char));
         datos = leerQR(qrName);
-        printf("%s\n", datos);
+
         if(strcmp(datos, "-1") == 0)
         {
             printf("No se encontro el archivo\n");
-        } else{
+        } else {
             token = strtok(datos, ":");
-            char* tokenTemp = (char*) malloc(5*sizeof(char));
-            //memset(token, 0, sizeof token);
             token = strtok(NULL, ",");
-            strcpy(tokenTemp, token);
             if(token != NULL){
                 while(token != NULL && strcmp(token, "\n") != 0){
-                    printf("Token: %s\n", token);
-                    pila = restaurarPila(pila, token);
-                    verificarPila(pila);
-                    printf("\nfin pila\n");
-                    //free(token);
-                    //memset(token, 0, sizeof token);
-                    char* tokenTemp = (char*) malloc(5*sizeof(char));
+                    strcat(datosLeidos, token);
+                    strcat(datosLeidos, ",");
                     token = strtok(NULL, ",");
-                    strcpy(tokenTemp, token);
-                    //printf("cabeza: %s\n", pila->cabeza->nombreQR);
                 }
-                //token = NULL;
+                token = NULL;
             }
-            //printf("Roke\n");
         }
-        memset(qrName, 0, sizeof qrName);
     }
+    //printf("%s\n", datosLeidos);
+    token = strtok(datosLeidos, ",");
+    if(token != NULL){
+        while(token != NULL && strcmp(token, "\n") != 0){
+            pila = restaurarPila(pila, cambiarDireccion(token));
+            token = strtok(NULL, ",");
+        }
+        token = NULL;
+    }
+    //printf("Pila:\n");
     //verificarPila(pila);
-    //printf("termine de reestablecer");
+}
+
+char* cambiarDireccion(char* token)
+{
+    char* tokenTemp = (char*) malloc(4 * sizeof(char));
+    strcpy(tokenTemp, token);
+    //printf("%p, %s\n", tokenTemp, tokenTemp);
+    return tokenTemp;
 }
