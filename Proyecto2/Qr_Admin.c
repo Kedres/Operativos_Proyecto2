@@ -3,9 +3,12 @@
 //
 
 #include "Qr_Admin.h"
+#include "pilaQR.h"
 
+struct pilaQR* pila = NULL;
 int qrID = 0;
 char resultado[128];
+int restablecido = 0;
 
 static int writePNG(QRcode *qrcode, const char *outfile);
 
@@ -59,10 +62,12 @@ int lectura(char* file)
                 datos[i] = caracter;
                 i++;
             }
-            char name[4];
-            sprintf(name, "%d", qrID);
-            qrID++;
-            createQR(name, datos);
+            char* qrName = popQR(pila);
+            //char name[5];
+            //sprintf(name, "%d", qrID);
+            //qrID++;
+            createQR(qrName, datos);
+            free(qrName);
             memset(datos, 0, sizeof datos);
         }while (caracter != EOF);
     }
@@ -200,4 +205,110 @@ static int writePNG(QRcode *qrcode, const char *outfile) {
     free(palette);
 
     return 0;
+}
+
+void crearSuperBloque(int cantRegistros)
+{
+    //{creationTime: 1376483073, mounted: 50, devId:20, freeStart:1, freeEnd:25, root:26, maxBlocks:10000}
+    //inodes seran del 1 al 400
+    pila = crearPila(cantRegistros);
+}
+
+void guardarPila()
+{
+    //printf("\nCAbeza %s\n", pila->cabeza->nombreQR);
+    //popQR(pila);
+    verificarPila(pila);
+    char datosGuardar[128];
+    char* qr = ".QRP";
+    char registroPila[10];
+    int registro = 0;
+
+    char* actual = popQR(pila);
+    //sprintf(datosGuardar, "%d", getTam());
+    //strcat(datosGuardar, ",");
+
+    do {
+        int datosAct = 0;
+        if (actual != 0) {
+            strcpy(datosGuardar, actual);
+            strcat(datosGuardar, ",");
+            datosAct = datosAct + strlen(actual) + 1;
+        }
+
+        while (actual != 0 && datosAct < 128) {
+            //printf("llegue\n");
+            //printf("%s\n", actual);
+            if(restablecido == 0) {
+                free(actual);
+            }
+            //printf("llegue2\n");
+            actual = popQR(pila);
+            if (actual != 0) {
+                datosAct = datosAct + strlen(actual) + 1;
+                if (datosAct < 128) {
+                    strcat(datosGuardar, actual);
+                    strcat(datosGuardar, ",");
+                }
+            }
+        }
+        //printf("%s\n", datosGuardar);
+
+        sprintf(registroPila, "%d", registro);
+        strcat(registroPila, qr);
+        createQR(registroPila, datosGuardar);
+        memset(registroPila, 0, sizeof registroPila);
+        memset(datosGuardar, 0, sizeof datosGuardar);
+        registro++;
+        //printf("%s\n", datosGuardar);
+    }while (actual != 0);
+    free(pila);
+}
+
+void reestablecerPila(int cant)
+{
+    char qrName[10];
+    restablecido = 1;
+    char* token;
+
+    //pila = NULL;
+    //pila = (struct pilaQR*) malloc(sizeof(struct pilaQR));
+    //pila->cabeza = pila->actual = NULL;
+    for(int i = 0; i < cant; ++i){
+        //printf("el i es: %i\n", i);
+        sprintf(qrName, "%d", i);
+        strcat(qrName, ".QRP");
+        char* datos = (char*) malloc(5*sizeof(char));
+        datos = leerQR(qrName);
+        printf("%s\n", datos);
+        if(strcmp(datos, "-1") == 0)
+        {
+            printf("No se encontro el archivo\n");
+        } else{
+            token = strtok(datos, ":");
+            char* tokenTemp = (char*) malloc(5*sizeof(char));
+            //memset(token, 0, sizeof token);
+            token = strtok(NULL, ",");
+            strcpy(tokenTemp, token);
+            if(token != NULL){
+                while(token != NULL && strcmp(token, "\n") != 0){
+                    printf("Token: %s\n", token);
+                    pila = restaurarPila(pila, token);
+                    verificarPila(pila);
+                    printf("\nfin pila\n");
+                    //free(token);
+                    //memset(token, 0, sizeof token);
+                    char* tokenTemp = (char*) malloc(5*sizeof(char));
+                    token = strtok(NULL, ",");
+                    strcpy(tokenTemp, token);
+                    //printf("cabeza: %s\n", pila->cabeza->nombreQR);
+                }
+                //token = NULL;
+            }
+            //printf("Roke\n");
+        }
+        memset(qrName, 0, sizeof qrName);
+    }
+    //verificarPila(pila);
+    //printf("termine de reestablecer");
 }

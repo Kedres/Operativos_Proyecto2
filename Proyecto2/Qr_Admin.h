@@ -30,5 +30,8 @@ static unsigned int bg_color[4] = {255, 255, 255, 255};
 int createQR(char* filename, const char* msg);
 int lectura(char* file);
 char* leerQR(char* filename);
+void crearSuperBloque(int cantRegistros);
+void guardarPila();
+void reestablecerPila(int cant);
 
 #endif //PROYECTO2_QR_ADMIN_H

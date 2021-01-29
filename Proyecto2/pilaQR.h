@@ -20,5 +20,7 @@ struct pilaQR* crearPila(int cantRegistros);
 void pushQR(struct pilaQR* pila, char* nombreQR);
 char* popQR(struct pilaQR* pila);
 void verificarPila(struct pilaQR* pila);
+int getTam();
+struct pilaQR* restaurarPila(struct pilaQR* pila, char* qr);
 
 #endif //PROYECTO2_PILAQR_H

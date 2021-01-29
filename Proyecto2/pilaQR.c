@@ -5,7 +5,6 @@ void rellenarPila(struct pilaQR* pila, int cantRegistros);
 
 struct nodoQR* crearNodoQR(char* nombreQR){
     struct nodoQR* nodoTemp = (struct nodoQR*) malloc(sizeof(struct nodoQR));
-
     nodoTemp->nombreQR = nombreQR;
     nodoTemp->sig = NULL;
     return nodoTemp;
@@ -23,7 +22,7 @@ void rellenarPila(struct pilaQR* pila, int cantRegistros)
 {
     for (int i = 0; i < cantRegistros; ++i)
     {
-        char* name = (char*) malloc(5*sizeof(char));;
+        char* name = (char*) malloc(5*sizeof(char));
         sprintf(name, "%d", i);
         struct nodoQR* temp = crearNodoQR(name);
         if(pila->cabeza == NULL)
@@ -61,6 +60,30 @@ char* popQR(struct pilaQR* pila){
     free(temp);
     tamanioPila = tamanioPila - 1;
     return  qrLibre;
+}
+
+int getTam()
+{
+    return tamanioPila;
+}
+
+struct pilaQR* restaurarPila(struct pilaQR* pila, char* qr)
+{
+    struct nodoQR* temp = crearNodoQR(qr);
+    if (pila == NULL)
+    {
+        struct pilaQR* pilaTempQR = (struct pilaQR*) malloc(sizeof(struct pilaQR));
+        pilaTempQR->cabeza = pilaTempQR->actual = NULL;
+        pilaTempQR->cabeza = temp;
+        pilaTempQR->actual = temp;
+        printf("temine 1\n");
+        return  pilaTempQR;
+    } else {
+        pila->actual->sig = temp;
+        pila->actual = temp;
+        //printf("termine2");
+        return pila;
+    }
 }
 
 void verificarPila(struct pilaQR* pila)
